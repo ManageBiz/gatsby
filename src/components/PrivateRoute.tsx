@@ -1,10 +1,16 @@
-import React from "react"
+import React, { ComponentType } from 'react';
 import PropTypes from "prop-types"
 import { navigate } from "gatsby"
 import { isLoggedIn } from "../utils/auth"
+import { RouteComponentProps } from '@reach/router';
 
-const PrivateRoute = ({ component: Component, location, ...rest }:any) => {
-  if (!isLoggedIn() && location.pathname !== `/app/login`) {
+interface PrivateRouteProps extends RouteComponentProps {
+  component: ComponentType<RouteComponentProps>;
+}
+
+
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ component: Component, location, ...rest }) => {
+  if (!isLoggedIn() && location?.pathname !== `/app/login`) {
     // If we’re not logged in, redirect to the home page.
     navigate(`/app/login`)
     return null
@@ -15,6 +21,7 @@ const PrivateRoute = ({ component: Component, location, ...rest }:any) => {
 
 PrivateRoute.propTypes = {
   component: PropTypes.any.isRequired,
+  path: PropTypes.any
 }
 
 export default PrivateRoute

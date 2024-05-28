@@ -1,4 +1,5 @@
-import * as React from "react"
+import React from "react"
+import { useEffect, useState } from 'react';
 import type { HeadFC, PageProps } from "gatsby"
 import { Link } from "gatsby"
 import Layout from "../components/Layout"
@@ -8,8 +9,29 @@ import Status from "../components/Status"
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/ThemeToggle';
 
+import User from "../components/User"
+import { fetchDetails } from "../services/user"
+
 const IndexPage: React.FC<PageProps> = () => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<Error | null>(null);
+
   const { theme } = useTheme();
+  useEffect(() => {
+    const getDetails = async () => {
+      try {
+        const response = await fetchDetails();
+        setUser(response.data);
+      } catch (error) {
+        setError(error as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getDetails();
+  }, []);
+
   return (
     <div style={{ background: theme === 'light' ? '#fff' : '#333', color: theme === 'light' ? '#000' : '#fff' }}>
       <Layout>
@@ -20,10 +42,6 @@ const IndexPage: React.FC<PageProps> = () => {
             This is a simple example of creating dynamic apps with Gatsby that
             require user authentication. It uses concepts from the
             {` `}
-            <a href="https://www.gatsbyjs.com/docs/client-only-routes-and-user-authentication/">
-              client-only routes section
-            </a>
-            {` `}
             of the “Building Apps with Gatsby” documentation.
           </p>
           <p>
@@ -31,10 +49,12 @@ const IndexPage: React.FC<PageProps> = () => {
             {` `}
             <Link to="/app/profile">your profile</Link>.
           </p>
+          {loading && "loading"}
+          {error && "error"}
+          <User data={user} />
         </View>
       </Layout>
     </div>
-
   )
 }
 
